@@ -118,32 +118,15 @@ pipeline {
             }
         }
 
-    stage('Approval') {
-        steps {
-            timeout(time: 1, unit: 'MINUTES') {
-                input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure!'
-            }
-        }
-    }
-
-    stage('Deploy prod') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
+        stage('Approval') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {
+                    input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure!'
                 }
             }
-            steps {
-                sh '''
-                    npm install netlify-cli 
-                    node_modules/.bin/netlify --version
-                    echo "Deployind to production. Site ID: $NETIFLY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod
-                '''
-            }
-        }       
-        stage('Prod E2E') {
+        }
+      
+        stage('Deploy prod') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.48.1-noble'
@@ -155,6 +138,11 @@ pipeline {
             }
             steps {
                 sh '''
+                    node --version
+                    node_modules/.bin/netlify --version
+                    echo "Deployind to production. Site ID: $NETIFLY_SITE_ID"
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod
                     npx playwright test --reporter=html
                 '''
             }
