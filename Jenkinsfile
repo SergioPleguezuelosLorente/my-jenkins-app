@@ -83,6 +83,10 @@ pipeline {
                 }
             }
 
+            environment {
+                CI_ENVIRONMENT_URL = 'STAGING_URL_TO_BE_SET'
+            }
+
             steps {
                 sh '''
                     npm install netlify-cli node-jq
@@ -114,7 +118,6 @@ pipeline {
             steps {
                 sh '''
                     node --version
-                    npm install netlify-cli
                     node_modules/.bin/netlify --version
                     echo "Deployind to production. Site ID: $NETIFLY_SITE_ID"
                     node_modules/.bin/netlify status
