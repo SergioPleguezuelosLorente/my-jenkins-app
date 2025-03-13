@@ -92,7 +92,7 @@ pipeline {
                     echo "Deployind to staging. Site ID: $NETIFLY_SITE_ID"
                     netlify status
                     netlify deploy --dir=build --json > deply-output.json
-                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deply-output.json)
+                    CI_ENVIRONMENT_URL=$(jq -r '.deploy_url' deply-output.json)
                     npx playwright test --reporter=html
                 '''
             }
@@ -124,7 +124,7 @@ pipeline {
                     echo "Deployind to production. Site ID: $NETIFLY_SITE_ID"
                     netlify status
                     netlify deploy --dir=build --prod --json > deply-output.json
-                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deply-output.json)
+                    CI_ENVIRONMENT_URL=$(jq -r '.deploy_url' deply-output.json)
                     npx playwright test --reporter=html
                 '''
             }
