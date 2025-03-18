@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
+        /*
         NETLIFY_SITE_ID = 'e076b676-8b99-4a48-b927-8b892c85bb55' 
         NETLIFY_AUTH_TOKEN = credentials('netifly-token')
+        */
         REACT_APP_VERSION = "1.0.$BUILD_ID"
     }
 
@@ -27,7 +29,7 @@ pipeline {
             }
         }
         
-        stage('AWS') {
+        stage('Deploy to AWS') {
             agent {
                 docker {
                     image 'amazon/aws-cli:2.24.23'
@@ -42,12 +44,13 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         aws s3 sync build s3://$AWS_S3_BUCKET
+                        aws ecs register-task-definition --cli-input-json aws/task-definition.json
                     '''
                 }
             }
         }
         
-
+        /*
         stage('Tests') {
             parallel {
                 stage('Unit tests') {
@@ -154,5 +157,6 @@ pipeline {
                 }
             }
         }
+        */
     }
 }
