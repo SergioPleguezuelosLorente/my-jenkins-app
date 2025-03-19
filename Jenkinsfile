@@ -11,6 +11,28 @@ pipeline {
     }
 
     stages {
+
+        stage('Deploy to AWS') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli:2.24.23'
+                    reuseNode true
+                    args "--entrypoint=''"
+                }
+            }
+            environment {
+                AWS_S3_BUCKET = 'learn-jenkins-13032025'
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        aws s3 sync build s3://$AWS_S3_BUCKET
+                        aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
+                        aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-Service-Prod --task-definition LearnJenkinsApp-TaskDefinition-Prod:1 --desired-count 2
+                    '''
+                }
+            }
+        }
         
         stage('Build') {
             agent {
@@ -30,27 +52,7 @@ pipeline {
             }
         }
         
-        stage('Deploy to AWS') {
-            agent {
-                docker {
-                    image 'amazon/aws-cli:2.24.23'
-                    reuseNode true
-                    args "--entrypoint=''"
-                }
-            }
-            environment {
-                AWS_S3_BUCKET = 'learn-jenkins-13032025'
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                    sh '''
-                        aws s3 sync build s3://$AWS_S3_BUCKET
-                        aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
-                        aws ecs update-service --cluster LearnJenkinsApp-Cluster --service LearnJenkinsApp-Service-Prod --desired-count 2
-                    '''
-                }
-            }
-        }
+        
         
         /*
         stage('Tests') {
