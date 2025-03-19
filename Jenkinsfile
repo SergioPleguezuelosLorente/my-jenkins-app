@@ -44,7 +44,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         aws s3 sync build s3://$AWS_S3_BUCKET
-                        aws ecs register-task-definition --cli-input-json aws/task-definition.json
+                        aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
                     '''
                 }
             }
