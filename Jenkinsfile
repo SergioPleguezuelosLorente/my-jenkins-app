@@ -7,6 +7,7 @@ pipeline {
         NETLIFY_AUTH_TOKEN = credentials('netifly-token')
         */
         REACT_APP_VERSION = "1.0.$BUILD_ID"
+        AWS_DEFAULT_REGION = 'eu-west-2'
     }
 
     stages {
